@@ -22,7 +22,7 @@ jobs:
       - run: |
           yarn
           yarn test
-          yarn package
+          yarn lint
           if [[ $(git status -s -- package-lock.json | wc -l) -gt 0 ]]; then
             git add package-lock.json
             git config --local user.email "actions@github.com"
