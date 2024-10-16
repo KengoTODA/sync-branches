@@ -23,10 +23,16 @@ jobs:
           yarn
           yarn package
           yarn lint
-          if [[ $(git status -s -- package-lock.json | wc -l) -gt 0 ]]; then
-            git add package-lock.json
-            git config --local user.email "actions@github.com"
-            git config --local user.name "GitHub Actions"
-            git commit -sm "build: keep package-lock.json updated"
+
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          if [[ $(git status -s -- yarn.lock | wc -l) -gt 0 ]]; then
+            git add yarn.lock
+            git commit -sm "build: keep the yarn.lock file updated"
+            git push origin HEAD
+          fi
+          if [[ $(git status -s -- dist | wc -l) -gt 0 ]]; then
+            git add dist
+            git commit -sm "build: keep the dist directory updated"
             git push origin HEAD
           fi
