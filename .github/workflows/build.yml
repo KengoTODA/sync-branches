@@ -1,0 +1,31 @@
+name: Build
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  yarn:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+      - run: |
+          yarn
+          yarn test
+          yarn package
+          if [[ $(git status -s -- package-lock.json | wc -l) -gt 0 ]]; then
+            git add package-lock.json
+            git config --local user.email "actions@github.com"
+            git config --local user.name "GitHub Actions"
+            git commit -sm "build: keep package-lock.json updated"
+            git push origin HEAD
+          fi
+
