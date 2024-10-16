@@ -1,0 +1,38 @@
+name: Build
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  yarn:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+      - run: |
+          yarn
+          yarn package
+          yarn lint
+
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          if [[ $(git status -s -- yarn.lock | wc -l) -gt 0 ]]; then
+            git add yarn.lock
+            git commit -sm "build: keep the yarn.lock file updated"
+            git push origin HEAD
+          fi
+          if [[ $(git status -s -- dist | wc -l) -gt 0 ]]; then
+            git add dist
+            git commit -sm "build: keep the dist directory updated"
+            git push origin HEAD
+          fi
